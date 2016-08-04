@@ -10,15 +10,21 @@ namespace ComputerMetricsWinForms
     public partial class ComputerMetricsForm : Form
     {
         public WinFormsQueries WinFormsQueries { get; set; }
+        private readonly PollerThread _pollerThread;
 
         public ComputerMetricsForm()
         {
             InitializeComponent();
             WinFormsQueries = new WinFormsQueries();
+            _pollerThread = new PollerThread();
+
+            _pollerThread.ThreadStopMethod();
+            _pollerThread.Start();
+
             StopButton.Hide();
         }
 
-        private void timer_Tick(object sender, EventArgs e)
+        public void OnThreadUpdated(object sender, EventArgs e)
         {
             WinFormsQueries.AddComputerUsegeData();
             var usegeData = WinFormsQueries.GetComputerUsegeData();
@@ -33,27 +39,6 @@ namespace ComputerMetricsWinForms
 
             UsageChart.Series[0].Points.AddXY(time, cpuUsage);
             UsageChart.Series[1].Points.AddXY(time, ramUsage);
-            //UsageChart.Series[2].Points.AddXY(time, diskUsage);
-            //UsageChart.Series[3].Points.AddXY(time, networkUsage);
-
-
-            while (UsageChart.Series[0].Points.Count > 10)
-            {
-                UsageChart.Series[0].Points.RemoveAt(0);
-            }
-            while (UsageChart.Series[1].Points.Count > 10)
-            {
-                UsageChart.Series[1].Points.RemoveAt(0);
-            }
-            //while (UsageChart.Series[2].Points.Count > 10)
-            //{
-            //    UsageChart.Series[2].Points.RemoveAt(0);
-            //}
-            //while (UsageChart.Series[3].Points.Count > 10)
-            //{
-            //    UsageChart.Series[3].Points.RemoveAt(0);
-            //}
-
         }
 
         private void StartButton_Click(object sender, EventArgs e)
@@ -61,20 +46,21 @@ namespace ComputerMetricsWinForms
             WinFormsQueries.AddComputerDetail();
             FillTextBoxes(WinFormsQueries.ComputerSummary);
             AddChartSeries();
-            timer.Start();
             StartButton.Hide();
             StopButton.Show();
             ProgramStatusLabel.Text = @"Program status: Running";
+            _pollerThread.UpdateFinished += OnThreadUpdated;
         }
 
         private void StopButton_Click(object sender, EventArgs e)
         {
             ClearTextBoxes();
             ClearChart();
-            timer.Stop();
-            StartButton.Show();
+            _pollerThread.ThreadStopMethod();
+            _pollerThread.UpdateFinished -= OnThreadUpdated;
             StopButton.Hide();
             ProgramStatusLabel.Text = @"Program status: Stopped";
+            StartButton.Show();
         }
 
         private void ClearTextBoxes()

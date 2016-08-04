@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
@@ -51,7 +50,6 @@
             this.AvailableDiskSpaceGBBox = new System.Windows.Forms.TextBox();
             this.AvarageDiskQueueLengthLabel = new System.Windows.Forms.Label();
             this.AverageDiskQueueLengthBox = new System.Windows.Forms.TextBox();
-            this.timer = new System.Windows.Forms.Timer(this.components);
             this.CpuUsageBox = new System.Windows.Forms.TextBox();
             this.UsageChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.StartButton = new System.Windows.Forms.Button();
@@ -257,11 +255,6 @@
             this.AverageDiskQueueLengthBox.Size = new System.Drawing.Size(317, 20);
             this.AverageDiskQueueLengthBox.TabIndex = 21;
             // 
-            // timer
-            // 
-            this.timer.Interval = 1000;
-            this.timer.Tick += new System.EventHandler(this.timer_Tick);
-            // 
             // CpuUsageBox
             // 
             this.CpuUsageBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -421,7 +414,6 @@
         private System.Windows.Forms.TextBox AvailableDiskSpaceGBBox;
         private System.Windows.Forms.Label AvarageDiskQueueLengthLabel;
         private System.Windows.Forms.TextBox AverageDiskQueueLengthBox;
-        private System.Windows.Forms.Timer timer;
         private System.Windows.Forms.TextBox CpuUsageBox;
         private System.Windows.Forms.DataVisualization.Charting.Chart UsageChart;
         private System.Windows.Forms.Button StartButton;
