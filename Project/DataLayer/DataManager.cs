@@ -76,7 +76,7 @@ namespace DataLayer
                     {
                         if (d.IsReady)
                         {
-                            sum += d.TotalFreeSpace / 1024 / 1024 / 1024;
+                            sum += d.TotalFreeSpace.BytesToGygabytes();
                         }
                     }
 
@@ -113,14 +113,14 @@ namespace DataLayer
         public string GetAvailableDiskSpaceInPercent()
         {
             var allDrives = DriveInfo.GetDrives();
-            double totalFreeSpaceSum = 0;
-            double totalAvailableSpaceSum = 0;
+            long totalFreeSpaceSum = 0;
+            long totalAvailableSpaceSum = 0;
             foreach (var d in allDrives)
             {
                 if (d.IsReady)
                 {
-                    totalFreeSpaceSum += d.TotalFreeSpace / 1024 / 1024 / 1024;
-                    totalAvailableSpaceSum += d.TotalSize / 1024 / 1024 / 1024;
+                    totalFreeSpaceSum += d.TotalFreeSpace.BytesToGygabytes();
+                    totalAvailableSpaceSum += d.TotalSize.BytesToGygabytes();
                 }
             }
             var value = (int)((totalAvailableSpaceSum - totalFreeSpaceSum) / totalAvailableSpaceSum * 100);
@@ -129,7 +129,6 @@ namespace DataLayer
 
         public string GetBandwithUsage()
         {
-            var value = 0;
             var performanceCounterCategory = new PerformanceCounterCategory("Network Interface");
             var instance = performanceCounterCategory.GetInstanceNames()[1];
 
@@ -143,7 +142,7 @@ namespace DataLayer
                 Thread.Sleep(100);
             }
             used = used / 10;
-            value = (int)(used * 100 / total);
+            var value = (int)(used * 100 / total);
             if (value > 100)
                 value = 100;
             else if (value < 0)
@@ -152,8 +151,18 @@ namespace DataLayer
             return value.ToString();
         }
 
+
+
         public abstract ComputerSummary GetComputerSummary();
         public abstract List<string> GetApplicationList();
         public abstract List<string> GetHardwareList();
+    }
+
+    public static class Extensions
+    {
+        public static long BytesToGygabytes(this long bytes)
+        {
+            return bytes / 1024 / 1024 / 1024;
+        }
     }
 }

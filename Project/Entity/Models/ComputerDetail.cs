@@ -12,7 +12,7 @@ namespace Entity.Models
         public string VideoCard { get; set; }
         public string Ip { get; set; }
 
-        public ICollection<UsegeData> UsageDataCollection { get; set; }
+        public ICollection<UsageData> UsageDataCollection { get; set; }
 
     }
 }

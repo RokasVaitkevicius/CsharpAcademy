@@ -6,7 +6,7 @@ namespace Entity.Models
     public class MetricsContext : DbContext
     {
         public DbSet<ComputerDetail> ComputerDetailsSet { get; set; }
-        public DbSet<UsegeData> UsegeDatasSet { get; set; }
+        public DbSet<UsageData> UsageDatasSet { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -16,5 +16,7 @@ namespace Entity.Models
 
             optionsBuilder.UseSqlite(connection);
         }
+
+
     }
 }

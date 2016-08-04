@@ -1,8 +1,7 @@
 ﻿using DataLayer;
-using Entity.Models;
+using Entity.Queries;
 using System;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -10,27 +9,22 @@ namespace ComputerMetricsWinForms
 {
     public partial class ComputerMetricsForm : Form
     {
-        public FullDataManager DataManager { get; set; }
-        private readonly MetricsContext _context;
+        public WinFormsQueries WinFormsQueries { get; set; }
 
         public ComputerMetricsForm()
         {
             InitializeComponent();
-            DataManager = new FullDataManager();
-            _context = new MetricsContext();
-            _context.Database.EnsureCreated();
-
+            WinFormsQueries = new WinFormsQueries();
             StopButton.Hide();
         }
 
         private void timer_Tick(object sender, EventArgs e)
         {
-
-            var time = DateTime.Now.ToString("mm:ss");
-            var cpuUsage = DataManager.GetMetric(ComputerMetricsEnum.CpuUsage);
-            var ramUsage = DataManager.GetMetric(ComputerMetricsEnum.RamUsage);
-            var diskUsage = DataManager.GetAvailableDiskSpaceInPercent();
-            //var networkUsage = DataManager.GetBandwithUsage();
+            WinFormsQueries.AddComputerUsegeData();
+            var usegeData = WinFormsQueries.GetComputerUsegeData();
+            var time = usegeData.Time?.ToString("mm:ss");
+            var cpuUsage = usegeData.CpuUsage;
+            var ramUsage = usegeData.RamUsage;
 
             CpuUsageBox.Clear();
             CpuUsageBox.AppendText(cpuUsage + " %");
@@ -39,16 +33,8 @@ namespace ComputerMetricsWinForms
 
             UsageChart.Series[0].Points.AddXY(time, cpuUsage);
             UsageChart.Series[1].Points.AddXY(time, ramUsage);
-            UsageChart.Series[2].Points.AddXY(time, diskUsage);
+            //UsageChart.Series[2].Points.AddXY(time, diskUsage);
             //UsageChart.Series[3].Points.AddXY(time, networkUsage);
-
-            var usegeData = new UsegeData
-            {
-                Time = DateTime.Now,
-                CpuUsage = int.Parse(cpuUsage),
-                RamUsage = int.Parse(ramUsage),
-                AvailableDiskSpaceGb = int.Parse(diskUsage)
-            };
 
 
             while (UsageChart.Series[0].Points.Count > 10)
@@ -59,10 +45,10 @@ namespace ComputerMetricsWinForms
             {
                 UsageChart.Series[1].Points.RemoveAt(0);
             }
-            while (UsageChart.Series[2].Points.Count > 10)
-            {
-                UsageChart.Series[2].Points.RemoveAt(0);
-            }
+            //while (UsageChart.Series[2].Points.Count > 10)
+            //{
+            //    UsageChart.Series[2].Points.RemoveAt(0);
+            //}
             //while (UsageChart.Series[3].Points.Count > 10)
             //{
             //    UsageChart.Series[3].Points.RemoveAt(0);
@@ -72,27 +58,9 @@ namespace ComputerMetricsWinForms
 
         private void StartButton_Click(object sender, EventArgs e)
         {
-            var computerMetrics = DataManager.GetComputerSummary();
-
-            if (_context.ComputerDetailsSet.Any(o => o.User != computerMetrics.User))
-            {
-                var computerDetails = new ComputerDetail
-                {
-                    Name = computerMetrics.Name,
-                    Cpu = computerMetrics.Cpu,
-                    User = computerMetrics.User,
-                    Ram = computerMetrics.Ram,
-                    VideoCard = computerMetrics.VideoCard,
-                    Ip = computerMetrics.Ip.ToString()
-                };
-
-                _context.Add(computerDetails);
-                _context.SaveChanges();
-            }
-
-            FillTextBoxes(computerMetrics);
+            WinFormsQueries.AddComputerDetail();
+            FillTextBoxes(WinFormsQueries.ComputerSummary);
             AddChartSeries();
-
             timer.Start();
             StartButton.Hide();
             StopButton.Show();
@@ -127,7 +95,7 @@ namespace ComputerMetricsWinForms
         {
             UsageChart.Series[0].Points.Clear();
             UsageChart.Series[1].Points.Clear();
-            UsageChart.Series[2].Points.Clear();
+            //UsageChart.Series[2].Points.Clear();
             //UsageChart.Series[3].Points.Clear();
         }
 
@@ -177,7 +145,7 @@ namespace ComputerMetricsWinForms
 
             UsageChart.Series.Add(cpuSeries);
             UsageChart.Series.Add(ramSeries);
-            UsageChart.Series.Add(diskSeries);
+            //UsageChart.Series.Add(diskSeries);
             //UsageChart.Series.Add(networkSeries);
         }
 
