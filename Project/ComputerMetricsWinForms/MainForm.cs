@@ -71,8 +71,8 @@ namespace ComputerMetricsWinForms
 
         public void OnThreadUpdated(object sender, EventArgs e)
         {
-            _winFormsQueries.AddComputerUsegeData();
-            var usegeData = _winFormsQueries.GetComputerUsegeData();
+            _winFormsQueries.AddComputerUsageData();
+            var usegeData = _winFormsQueries.GetComputerUsageData();
             var time = usegeData.Time?.ToString("mm:ss");
             var cpuUsage = usegeData.CpuUsage;
             var ramUsage = usegeData.RamUsage;

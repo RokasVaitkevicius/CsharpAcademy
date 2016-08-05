@@ -43,14 +43,14 @@ namespace Entity.Repository
             CurrentComputerId = currenComputer.ComputerDetailId;
         }
 
-        public void AddComputerUsegeData()
+        public void AddComputerUsageData()
         {
             var cpuUsage = _dataManager.GetMetric(ComputerMetricsEnum.CpuUsage);
             var ramUsage = _dataManager.GetMetric(ComputerMetricsEnum.RamUsage);
             var avaiableDiskSpaceGb = _dataManager.GetMetric(ComputerMetricsEnum.AvailableDiskSpaceGb);
             var averageDiskQueueLength = _dataManager.GetMetric(ComputerMetricsEnum.AverageDiskQueueLength);
 
-            var usegeData = new UsageData
+            var usageData = new UsageData
             {
                 Time = DateTime.Now,
                 CpuUsage = int.Parse(cpuUsage),
@@ -60,16 +60,16 @@ namespace Entity.Repository
                 ComputerDetailId = CurrentComputerId
             };
 
-            _context.Add(usegeData);
+            _context.Add(usageData);
             _context.SaveChanges();
         }
 
-        public UsageData GetComputerUsegeData()
+        public UsageData GetComputerUsageData()
         {
-            var usegeData = _context.UsageDatasSet
+            var usageData = _context.UsageDatasSet
                 .LastOrDefault();
 
-            return usegeData;
+            return usageData;
         }
 
     }
