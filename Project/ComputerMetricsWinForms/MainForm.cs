@@ -17,8 +17,6 @@ namespace ComputerMetricsWinForms
             InitializeComponent();
             WinFormsQueries = new WinFormsQueries();
             _pollerThread = new PollerThread();
-
-            _pollerThread.ThreadStopMethod();
             _pollerThread.Start();
 
             StopButton.Hide();
@@ -39,6 +37,15 @@ namespace ComputerMetricsWinForms
 
             UsageChart.Series[0].Points.AddXY(time, cpuUsage);
             UsageChart.Series[1].Points.AddXY(time, ramUsage);
+            while (UsageChart.Series[0].Points.Count > 10)
+            {
+                UsageChart.Series[0].Points.RemoveAt(0);
+            }
+            while (UsageChart.Series[1].Points.Count > 10)
+            {
+                UsageChart.Series[1].Points.RemoveAt(0);
+            }
+
         }
 
         private void StartButton_Click(object sender, EventArgs e)

@@ -10,6 +10,7 @@ namespace Entity.Queries
         private readonly MetricsContext _context;
         public FullDataManager DataManager { get; set; }
         public ComputerSummary ComputerSummary { get; set; }
+        public int CurrentComputerId { get; set; }
 
         public WinFormsQueries()
         {
@@ -37,6 +38,9 @@ namespace Entity.Queries
                 _context.Add(computerDetails);
                 SaveDataToDatabase();
             }
+
+            var currenComputer = _context.ComputerDetailsSet.FirstOrDefault(c => c.User == ComputerSummary.User);
+            CurrentComputerId = currenComputer.ComputerDetailId;
         }
 
         public void SaveDataToDatabase()
@@ -58,6 +62,7 @@ namespace Entity.Queries
                 RamUsage = int.Parse(ramUsage),
                 AvailableDiskSpaceGb = int.Parse(avaiableDiskSpaceGb),
                 AverageDiskQueueLength = int.Parse(averageDiskQueueLength),
+                ComputerDetailId = CurrentComputerId
 
             };
 
