@@ -16,7 +16,5 @@ namespace Entity.Models
 
             optionsBuilder.UseSqlite(connection);
         }
-
-
     }
 }

@@ -3,21 +3,21 @@ using Entity.Models;
 using System;
 using System.Linq;
 
-namespace Entity.Queries
+namespace Entity.Repository
 {
     public class WinFormsQueries
     {
         private readonly MetricsContext _context;
-        public FullDataManager DataManager { get; set; }
-        public ComputerSummary ComputerSummary { get; set; }
-        public int CurrentComputerId { get; set; }
+        private readonly FullDataManager _dataManager;
+        public ComputerSummary ComputerSummary { get; }
+        private int CurrentComputerId { get; set; }
 
         public WinFormsQueries()
         {
-            DataManager = new FullDataManager();
+            _dataManager = new FullDataManager();
             _context = new MetricsContext();
             _context.Database.EnsureCreated();
-            ComputerSummary = DataManager.GetComputerSummary();
+            ComputerSummary = _dataManager.GetComputerSummary();
         }
 
         public void AddComputerDetail()
@@ -36,24 +36,19 @@ namespace Entity.Queries
                 };
 
                 _context.Add(computerDetails);
-                SaveDataToDatabase();
+                _context.SaveChanges();
             }
 
             var currenComputer = _context.ComputerDetailsSet.FirstOrDefault(c => c.User == ComputerSummary.User);
             CurrentComputerId = currenComputer.ComputerDetailId;
         }
 
-        public void SaveDataToDatabase()
-        {
-            _context.SaveChanges();
-        }
-
         public void AddComputerUsegeData()
         {
-            var cpuUsage = DataManager.GetMetric(ComputerMetricsEnum.CpuUsage);
-            var ramUsage = DataManager.GetMetric(ComputerMetricsEnum.RamUsage);
-            var avaiableDiskSpaceGb = DataManager.GetMetric(ComputerMetricsEnum.AvailableDiskSpaceGb);
-            var averageDiskQueueLength = DataManager.GetMetric(ComputerMetricsEnum.AverageDiskQueueLength);
+            var cpuUsage = _dataManager.GetMetric(ComputerMetricsEnum.CpuUsage);
+            var ramUsage = _dataManager.GetMetric(ComputerMetricsEnum.RamUsage);
+            var avaiableDiskSpaceGb = _dataManager.GetMetric(ComputerMetricsEnum.AvailableDiskSpaceGb);
+            var averageDiskQueueLength = _dataManager.GetMetric(ComputerMetricsEnum.AverageDiskQueueLength);
 
             var usegeData = new UsageData
             {
@@ -63,11 +58,10 @@ namespace Entity.Queries
                 AvailableDiskSpaceGb = int.Parse(avaiableDiskSpaceGb),
                 AverageDiskQueueLength = int.Parse(averageDiskQueueLength),
                 ComputerDetailId = CurrentComputerId
-
             };
 
             _context.Add(usegeData);
-            SaveDataToDatabase();
+            _context.SaveChanges();
         }
 
         public UsageData GetComputerUsegeData()

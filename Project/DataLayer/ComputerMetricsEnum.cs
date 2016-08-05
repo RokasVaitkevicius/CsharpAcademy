@@ -12,6 +12,5 @@
         RamUsage = 7,
         AvailableDiskSpaceGb = 8,
         AverageDiskQueueLength = 9
-
     }
 }

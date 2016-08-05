@@ -27,6 +27,7 @@ namespace DataLayer
 
                     value = Environment.MachineName;
                     break;
+
                 case UserName:
 
                     value = Environment.UserDomainName + @"\" + Environment.UserName;
@@ -89,6 +90,7 @@ namespace DataLayer
                     break;
 
                 default:
+
                     value = "";
                     break;
 

@@ -13,6 +13,5 @@ namespace Entity.Models
         public string Ip { get; set; }
 
         public ICollection<UsageData> UsageDataCollection { get; set; }
-
     }
 }

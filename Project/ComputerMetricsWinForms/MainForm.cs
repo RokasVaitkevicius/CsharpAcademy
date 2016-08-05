@@ -1,5 +1,5 @@
 ﻿using DataLayer;
-using Entity.Queries;
+using Entity.Repository;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -9,62 +9,36 @@ namespace ComputerMetricsWinForms
 {
     public partial class ComputerMetricsForm : Form
     {
-        public WinFormsQueries WinFormsQueries { get; set; }
+        private readonly WinFormsQueries _winFormsQueries;
         private readonly PollerThread _pollerThread;
 
         public ComputerMetricsForm()
         {
             InitializeComponent();
-            WinFormsQueries = new WinFormsQueries();
+            _winFormsQueries = new WinFormsQueries();
             _pollerThread = new PollerThread();
             _pollerThread.Start();
-
             StopButton.Hide();
-        }
-
-        public void OnThreadUpdated(object sender, EventArgs e)
-        {
-            WinFormsQueries.AddComputerUsegeData();
-            var usegeData = WinFormsQueries.GetComputerUsegeData();
-            var time = usegeData.Time?.ToString("mm:ss");
-            var cpuUsage = usegeData.CpuUsage;
-            var ramUsage = usegeData.RamUsage;
-
-            CpuUsageBox.Clear();
-            CpuUsageBox.AppendText(cpuUsage + " %");
-            RamUsageBox.Clear();
-            RamUsageBox.AppendText(ramUsage + " %");
-
-            UsageChart.Series[0].Points.AddXY(time, cpuUsage);
-            UsageChart.Series[1].Points.AddXY(time, ramUsage);
-            while (UsageChart.Series[0].Points.Count > 10)
-            {
-                UsageChart.Series[0].Points.RemoveAt(0);
-            }
-            while (UsageChart.Series[1].Points.Count > 10)
-            {
-                UsageChart.Series[1].Points.RemoveAt(0);
-            }
-
         }
 
         private void StartButton_Click(object sender, EventArgs e)
         {
-            WinFormsQueries.AddComputerDetail();
-            FillTextBoxes(WinFormsQueries.ComputerSummary);
+            _winFormsQueries.AddComputerDetail();
+
+            FillTextBoxes(_winFormsQueries.ComputerSummary);
             AddChartSeries();
             StartButton.Hide();
             StopButton.Show();
             ProgramStatusLabel.Text = @"Program status: Running";
+
             _pollerThread.UpdateFinished += OnThreadUpdated;
         }
 
         private void StopButton_Click(object sender, EventArgs e)
         {
+            _pollerThread.UpdateFinished -= OnThreadUpdated;
             ClearTextBoxes();
             ClearChart();
-            _pollerThread.ThreadStopMethod();
-            _pollerThread.UpdateFinished -= OnThreadUpdated;
             StopButton.Hide();
             ProgramStatusLabel.Text = @"Program status: Stopped";
             StartButton.Show();
@@ -88,12 +62,37 @@ namespace ComputerMetricsWinForms
         {
             UsageChart.Series[0].Points.Clear();
             UsageChart.Series[1].Points.Clear();
-            //UsageChart.Series[2].Points.Clear();
-            //UsageChart.Series[3].Points.Clear();
         }
 
         private void ComputerMetricsForm_Load(object sender, EventArgs e)
         {
+
+        }
+
+        public void OnThreadUpdated(object sender, EventArgs e)
+        {
+            _winFormsQueries.AddComputerUsegeData();
+            var usegeData = _winFormsQueries.GetComputerUsegeData();
+            var time = usegeData.Time?.ToString("mm:ss");
+            var cpuUsage = usegeData.CpuUsage;
+            var ramUsage = usegeData.RamUsage;
+
+            CpuUsageBox.Clear();
+            CpuUsageBox.AppendText(cpuUsage + " %");
+            RamUsageBox.Clear();
+            RamUsageBox.AppendText(ramUsage + " %");
+
+            UsageChart.Series[0].Points.AddXY(time, cpuUsage);
+            UsageChart.Series[1].Points.AddXY(time, ramUsage);
+
+            while (UsageChart.Series[0].Points.Count > 10)
+            {
+                UsageChart.Series[0].Points.RemoveAt(0);
+            }
+            while (UsageChart.Series[1].Points.Count > 10)
+            {
+                UsageChart.Series[1].Points.RemoveAt(0);
+            }
 
         }
 
@@ -120,26 +119,8 @@ namespace ComputerMetricsWinForms
                 BorderWidth = 3
             };
 
-            var diskSeries = new Series("Disk space usage")
-            {
-                ChartType = SeriesChartType.Line,
-                Color = Color.Green,
-                BorderWidth = 3
-            };
-
-            var networkSeries = new Series("Network usage")
-            {
-                ChartType = SeriesChartType.Line,
-                Color = Color.Orange,
-                BorderWidth = 3
-            };
-
-
-
             UsageChart.Series.Add(cpuSeries);
             UsageChart.Series.Add(ramSeries);
-            //UsageChart.Series.Add(diskSeries);
-            //UsageChart.Series.Add(networkSeries);
         }
 
         private void FillTextBoxes(ComputerSummary computerMetrics)

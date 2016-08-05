@@ -7,7 +7,6 @@ namespace ComputerMetricsWinForms
     {
         private readonly Thread _thread;
         private readonly SynchronizationContext _syncContext;
-        private volatile bool _shouldStop;
 
         public event EventHandler UpdateFinished;
 
@@ -41,25 +40,13 @@ namespace ComputerMetricsWinForms
                     // Go get the new data from the SQL server  
 
                     OnUpdateFinished(); // Notify all subscribers (on their own threads)  
-                    Thread.Sleep(1000); // 10 sec wait before the next update  
+                    Thread.Sleep(1000); // 1 sec wait before the next update  
                 }
             }
             catch (ThreadAbortException)
             {
                 // The thread was aborted... ignore this exception if it's safe to do so  
             }
-        }
-
-        public void RestartThread()
-        {
-            _shouldStop = false;
-            ThreadStartMethod();
-        }
-
-        public void ThreadStopMethod()
-        {
-            _shouldStop = true;
-
         }
 
         protected virtual void OnUpdateFinished()

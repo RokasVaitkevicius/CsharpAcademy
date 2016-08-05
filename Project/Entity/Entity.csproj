@@ -130,7 +130,7 @@
     <Compile Include="Models\MetricsContext.cs" />
     <Compile Include="Models\UsageData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\WinFormsQueries.cs" />
+    <Compile Include="Repository\WinFormsQueries.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

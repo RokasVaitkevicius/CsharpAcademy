@@ -1,6 +1,4 @@
 ﻿using DataLayer;
-using System;
-using System.Diagnostics;
 using static System.Console;
 
 namespace ConsoleApplication1
@@ -10,13 +8,6 @@ namespace ConsoleApplication1
         static void Main(string[] args)
         {
             var dataManager = new FullDataManager();
-            PerformanceCounterCategory category = new PerformanceCounterCategory("Network Interface");
-            String[] instancename = category.GetInstanceNames();
-
-            foreach (string name in instancename)
-            {
-                Console.WriteLine(name);
-            }
             WriteLine("If you want computer summary write 'CS' , \n" +
                       "if you want application list write 'AL', \n" +
                       "if you want hardware list write 'HL': \n");
