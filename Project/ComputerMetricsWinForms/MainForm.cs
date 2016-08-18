@@ -2,6 +2,8 @@
 using Entity.Repository;
 using System;
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -10,38 +12,42 @@ namespace ComputerMetricsWinForms
     public partial class ComputerMetricsForm : Form
     {
         private readonly WinFormsQueries _winFormsQueries;
-        private readonly PollerThread _pollerThread;
+        private bool _taskOnline;
 
         public ComputerMetricsForm()
         {
             InitializeComponent();
             _winFormsQueries = new WinFormsQueries();
-            _pollerThread = new PollerThread();
-            _pollerThread.Start();
+
             StopButton.Hide();
         }
 
-        private void StartButton_Click(object sender, EventArgs e)
+        private async void StartButton_Click(object sender, EventArgs e)
         {
             _winFormsQueries.AddComputerDetail();
+            _taskOnline = true;
 
             FillTextBoxes(_winFormsQueries.ComputerSummary);
             AddChartSeries();
             StartButton.Hide();
             StopButton.Show();
-            ProgramStatusLabel.Text = @"Program status: Running";
 
-            _pollerThread.UpdateFinished += OnThreadUpdated;
+            ProgramStatusLabel.Text = @"Program status: Running";
+            while (_taskOnline)
+            {
+                await UpdateDataAsync();
+            }
         }
 
         private void StopButton_Click(object sender, EventArgs e)
         {
-            _pollerThread.UpdateFinished -= OnThreadUpdated;
-            ClearTextBoxes();
-            ClearChart();
+            _taskOnline = false;
             StopButton.Hide();
             ProgramStatusLabel.Text = @"Program status: Stopped";
             StartButton.Show();
+
+            ClearTextBoxes();
+            ClearChart();
         }
 
         private void ClearTextBoxes()
@@ -69,13 +75,20 @@ namespace ComputerMetricsWinForms
 
         }
 
-        public void OnThreadUpdated(object sender, EventArgs e)
+        public async Task UpdateDataAsync()
         {
-            _winFormsQueries.AddComputerUsageData();
-            var usegeData = _winFormsQueries.GetComputerUsageData();
-            var time = usegeData.Time?.ToString("mm:ss");
-            var cpuUsage = usegeData.CpuUsage;
-            var ramUsage = usegeData.RamUsage;
+            var task = await Task.Run(() =>
+            {
+                _winFormsQueries.AddComputerUsageData();
+                Thread.Sleep(1000);
+                return _winFormsQueries.GetComputerUsageData();
+            });
+
+            var usageData = task;
+
+            var time = usageData.Time?.ToString("mm:ss");
+            var cpuUsage = usageData.CpuUsage;
+            var ramUsage = usageData.RamUsage;
 
             CpuUsageBox.Clear();
             CpuUsageBox.AppendText(cpuUsage + " %");
@@ -93,7 +106,6 @@ namespace ComputerMetricsWinForms
             {
                 UsageChart.Series[1].Points.RemoveAt(0);
             }
-
         }
 
         private void AddChartSeries()
